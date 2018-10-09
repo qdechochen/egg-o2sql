@@ -1,0 +1,20 @@
+{
+  "name": "egg-o2sql",
+  "description": "egg o2sql plugin with pg integreted",
+  "version": "0.1.0",
+  "eggPlugin": {
+    "name": "o2sql"
+  },
+  "dependencies": {
+    "o2sql": "^1.0.1",
+    "pg": "^7.4.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/qdechochen/egg-o2sql.git"
+  },
+  "files": [
+    "app.js",
+    "config"
+  ]
+}
