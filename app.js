@@ -59,7 +59,7 @@ function createPgClient(config, app) {
 
   async function query(text, vals, client) {
     console.log('[egg-pg] query');
-    console.dir(arguments);
+    console.dir({text, vals});
     return await (client ? client : pool).query(text, vals);
   }
 
