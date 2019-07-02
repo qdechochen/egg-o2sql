@@ -59,7 +59,7 @@ function createPgClient(config, app) {
           const group = {};
           g.fields = g.fields.map(f => {
             if (f instanceof Array) {
-              const [column, alias] = column;
+              const [column, alias] = f;
               f = alias || column;
             }
             return [
