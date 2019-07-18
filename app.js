@@ -38,7 +38,7 @@ function createPgClient(config, app) {
     });
     let result = await (client ? client : pool).query({ text, values });
     let columns;
-    if (this.command === 'select') {
+    if (this.command === 'select' || this.command === 'count') {
       if (this.isCount) {
         columns = null;
         result = result.rows[0].count;
