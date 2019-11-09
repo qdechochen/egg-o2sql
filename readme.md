@@ -1,5 +1,7 @@
 # egg o2sql plugin with pg integreted
 
+Only work with o2sql 3
+
 ## Install
 
 ```bash

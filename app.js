@@ -21,8 +21,8 @@ function createPgClient(config, app) {
     });
     let result = await (client ? client : pool).query({ text, values });
     let columns;
-    if (this.command instanceof o2sql.command.Select) {
-      if (this.command instanceof o2sql.command.Count) {
+    if (this instanceof o2sql.command.Select) {
+      if (this instanceof o2sql.command.Count) {
         columns = null;
         result = result.rows[0].count;
       } else {
@@ -30,14 +30,12 @@ function createPgClient(config, app) {
         result = result.rows;
       }
     } else if (
-      this.command instanceof o2sql.command.Insert ||
-      this.command instanceof o2sql.command.Update
+      this instanceof o2sql.command.Insert ||
+      this instanceof o2sql.command.Update
     ) {
       result = result.rows;
       columns = this.data.returning;
-    } /* else if (this.command === 'delete') {
-      result = result;
-    }*/
+    }
     if (columns) {
       const groups = columns.filter(t => t.group);
       if (groups.length > 0) {
@@ -70,11 +68,11 @@ function createPgClient(config, app) {
     }
 
     if (
-      this.command instanceof o2sql.command.Insert ||
-      this.command instanceof o2sql.command.Update
+      this instanceof o2sql.command.Insert ||
+      this instanceof o2sql.command.Update
     ) {
       result = result[0];
-    } else if (this.command instanceof o2sql.command.Get) {
+    } else if (this instanceof o2sql.command.Get) {
       result = result.length > 0 ? result[0] : null;
     }
 

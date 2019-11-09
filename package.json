@@ -1,12 +1,12 @@
 {
   "name": "egg-o2sql",
   "description": "egg o2sql plugin with pg integreted(for o2sql v3)",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "eggPlugin": {
     "name": "o2sql"
   },
   "dependencies": {
-    "o2sql": "^3.0.0",
+    "o2sql": "^3.0.2",
     "pg": "^7.4.1"
   },
   "repository": {
