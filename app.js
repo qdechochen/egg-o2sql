@@ -19,61 +19,81 @@ function createPgClient(config, app) {
       text,
       values,
     });
-    let result = await (client ? client : pool).query({ text, values });
-    let columns;
-    if (this instanceof o2sql.command.Select) {
-      if (this instanceof o2sql.command.Count) {
-        columns = null;
-        result = result.rows[0].count;
-      } else {
-        columns = this.data.columns;
-        result = result.rows;
-      }
-    } else if (
-      this instanceof o2sql.command.Insert ||
-      this instanceof o2sql.command.Update
-    ) {
-      result = result.rows;
-      columns = this.data.returning;
-    }
-    if (columns) {
-      const groups = columns.filter(t => t.group);
-      if (groups.length > 0) {
-        groups.forEach(g => {
-          const group = {};
-          g.fields = (g.fields || g.columns).map(f => {
-            if (f instanceof Array) {
-              const [column, alias] = f;
-              f = alias || column;
-            }
-            return [
-              g.prefix
-                ? g.prefix + (g.separator ? g.separator + f : capFirstLetter(f))
-                : f,
-              f,
-            ];
-          });
-        });
+    const { rowCount, rows } = await (client ? client : pool).query({
+      text,
+      values,
+    });
+    rows.count = rowCount;
 
-        result.forEach(r => {
+    let result;
+    if (this instanceof o2sql.command.Count) {
+      result = rows[0].count;
+    } else {
+      if (rows.length > 0) {
+        let columns;
+        if (this instanceof o2sql.command.Select) {
+          columns = this.data.columns;
+        } else if (
+          this instanceof o2sql.command.Insert ||
+          this instanceof o2sql.command.Update ||
+          this instanceof o2sql.command.Delete
+        ) {
+          columns = this.data.returning;
+        }
+
+        const groups = columns.filter(t => t.group);
+        if (groups.length > 0) {
           groups.forEach(g => {
-            r[g.prefix] = {};
-            g.fields.forEach(f => {
-              r[g.prefix][f[1]] = r[f[0]];
-              delete r[f[0]];
+            const group = {};
+            g.fields = (g.fields || g.columns).map(f => {
+              if (f instanceof Array) {
+                const [column, alias] = f;
+                f = alias || column;
+              }
+              return [
+                g.prefix
+                  ? g.prefix +
+                    (g.separator ? g.separator + f : capFirstLetter(f))
+                  : f,
+                f,
+              ];
             });
           });
-        });
-      }
-    }
 
-    if (
-      this instanceof o2sql.command.Insert ||
-      this instanceof o2sql.command.Update
-    ) {
-      result = result[0];
-    } else if (this instanceof o2sql.command.Get) {
-      result = result.length > 0 ? result[0] : null;
+          rows.forEach(r => {
+            groups.forEach(g => {
+              r[g.prefix] = {};
+              g.fields.forEach(f => {
+                r[g.prefix][f[1]] = r[f[0]];
+                delete r[f[0]];
+              });
+            });
+          });
+        }
+      }
+
+      if (this instanceof o2sql.command.Insert) {
+        if (rowCount === 0) {
+          return null;
+        } else if (this.data.values.length === 1) {
+          result = rows.length > 0 ? rows[0] : {};
+        } else {
+          result = rows;
+        }
+      } else if (
+        this instanceof o2sql.command.Update ||
+        this instanceof o2sql.command.Delete
+      ) {
+        if (rowCount === 0) {
+          return null;
+        } else {
+          result = rows;
+        }
+      } else if (this instanceof o2sql.command.Get) {
+        result = rows.length > 0 ? rows[0] : null;
+      } else if (this instanceof o2sql.command.Select) {
+        result = rows;
+      }
     }
 
     return result;
