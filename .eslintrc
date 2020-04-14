@@ -1,0 +1,14 @@
+{
+  "extends": "eslint-config-egg",
+  "rules": {
+    "array-bracket-spacing": 0,
+    "no-debugger": 0,
+    "arrow-parens": ["error", "as-needed"]
+  },
+  "parserOptions": {
+    "ecmaVersion": 2017,
+    "ecmaFeatures": {
+      "experimentalObjectRestSpread": true
+    }
+  }
+}
